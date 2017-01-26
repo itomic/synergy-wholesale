@@ -1,1 +1,1 @@
-"# synergy-wholesale" 
+#Synergy Wholesale Laravel Package
