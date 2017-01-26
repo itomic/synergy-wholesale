@@ -1,0 +1,12 @@
+{
+    "name": "itomic/synergy",
+    "description": "Itomic Voyager CRM - Laravel Synergy package",
+    "authors": [
+        {
+            "name": "Itomic",
+            "email": "dev@itomic.com.au"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
