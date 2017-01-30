@@ -2,14 +2,17 @@
 
 namespace Itomic\Synergy;
 
+use SoapClient;
+use SoapFault;
+
 class Synergy
 {
-    const API_LOCATION = 'https://api.synergywholesale.com';
+    const API_LOCATION = 'https://api.synergywholesale.com?wsdl';
     
-    private $location = self::API_LOCATION.'?wsdl';    
-    private $resellerId;
-    private $apiKey;
-    private $lastError;
+    private static $location = self::API_LOCATION.'?wsdl';    
+    private static $resellerId;
+    private static $apiKey;
+    private static $lastError;
     
     
     /**
@@ -19,8 +22,8 @@ class Synergy
      * @param string $api_key Synergy API key
      */
     public function __construct($reseller_id,$api_key) {
-        $this->resellerId = $reseller_id;
-        $this->apiKey = $api_key;
+        self::$resellerId = $reseller_id;
+        self::$apiKey = $api_key;
     }
     
     /**
@@ -30,9 +33,9 @@ class Synergy
      * 
      * return object
      */
-    public function getLastError()
+    public static function getLastError()
     {
-        return $this->lastError;
+        return self::$lastError;
     }
     
     /**
@@ -41,27 +44,26 @@ class Synergy
      * Wrapper for Synergy-Wholesale API calls
      * 
      * @param string $command API Command
-     * @param array $data payload
+     * @param array  $data    payload
      * 
-     * return mixed
+     * @return mixed
      */
-    private function callApi($command,$data = array())
-    {
+    private static function callApi($command,$data = array())
+    {   
         try {
             // New soap connection
-            $client = new SoapClient(null, array('location' => $this->location,'uri' => ""));
-
+            $client = new SoapClient(null, array('location' => self::$location, 'uri' => ""));
+            
             // make API call
-            $output = $client->$command(array_merge(array('resellerID' => $this->resellerId, 'apiKey' => $this->apiKey), $data));
+            $output = $client->$command(array_merge(array('resellerID' => self::$resellerId, 'apiKey' => self::$apiKey), $data));
             
             return $output;
 
         } catch (SoapFault $fault) {
             
-            $this->lastError = $fault;
+            self::$lastError = $fault;
             
             return false;
-            
         }
     }
     
@@ -72,11 +74,11 @@ class Synergy
      * 
      * @param string $domain_name
      * 
-     * return array
+     * @return array
      */
-    public function domainInfo($domain_name)
+    public static function domainInfo($domain_name)
     {
-        return $this->callApi('domainInfo', array('domainName' => $domain_name));
+        return self::callApi('domainInfo', array('domainName' => $domain_name));
     }
     
     /**
@@ -86,9 +88,9 @@ class Synergy
      * 
      * return mixed
      */
-    public function balanceQuery()
+    public static function balanceQuery()
     {
-        return $this->callApi('balanceQuery');
+        return self::callApi('balanceQuery');
     }
     
     /**
@@ -101,9 +103,9 @@ class Synergy
      * 
      * return mixed
      */
-    public function updateDomainPassword($domain_name,$new_password)
+    public static function updateDomainPassword($domain_name,$new_password)
     {
-        return $this->callApi('updateDomainPassword',array('domainName' => $domain_name, 'newPassword' => $new_password));
+        return self::callApi('updateDomainPassword',array('domainName' => $domain_name, 'newPassword' => $new_password));
     }
     
     /**
