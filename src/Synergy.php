@@ -40,9 +40,12 @@ class Synergy
      * 
      * Wrapper for Synergy-Wholesale API calls
      * 
+     * @param string $command API Command
+     * @param array $data payload
+     * 
      * return mixed
      */
-    private function callApi($command,$data)
+    private function callApi($command,$data = array())
     {
         try {
             // New soap connection
@@ -73,25 +76,7 @@ class Synergy
      */
     public function domainInfo($domain_name)
     {
-        try {
-            // New soap connection
-            $client = new SoapClient(null, array('location' => $this->location,'uri' => ""));
-
-            // Data array
-            $data = array('resellerID' => $this->resellerId, 'apiKey' => $this->apiKey, 'domainName' => $domain_name);
-
-            // make API call
-            $output = $client->domainInfo($data);
-            
-            return $output;
-
-        } catch (SoapFault $fault) {
-            
-            $this->lastError = $fault;
-            
-            return false;
-            
-        }
+        return $this->callApi('domainInfo', array('domainName' => $domain_name));
     }
     
     /**
@@ -103,25 +88,7 @@ class Synergy
      */
     public function balanceQuery()
     {
-        try {
-            // New soap connection
-            $client = new SoapClient(null, array('location' => $this->location,'uri' => ""));
-
-            // Data array
-            $data = array('resellerID' => $this->resellerId, 'apiKey' => $this->apiKey);
-
-            // make API call
-            $output = $client->balanceQuery($data);
-            
-            return $output;
-
-        } catch (SoapFault $fault) {
-            
-            $this->lastError = $fault;
-            
-            return false;
-            
-        }
+        return $this->callApi('balanceQuery');
     }
     
     /**
@@ -136,25 +103,7 @@ class Synergy
      */
     public function updateDomainPassword($domain_name,$new_password)
     {
-        try {
-            // New soap connection
-            $client = new SoapClient(null, array('location' => $this->location,'uri' => ""));
-
-            // Data array
-            $data = array('resellerID' => $this->resellerId, 'apiKey' => $this->apiKey, 'domainName' => $domain_name, 'newPassword' => $new_password);
-
-            // make API call
-            $output = $client->updateDomainPassword($data);
-            
-            return $output;
-
-        } catch (SoapFault $fault) {
-            
-            $this->lastError = $fault;
-            
-            return false;
-            
-        }
+        return $this->callApi('updateDomainPassword',array('domainName' => $domain_name, 'newPassword' => $new_password));
     }
     
     /**
@@ -176,24 +125,6 @@ class Synergy
      */
     public function checkDomain($domain_name)
     {
-        try {
-            // New soap connection
-            $client = new SoapClient(null, array('location' => $this->location,'uri' => ""));
-
-            // Data array
-            $data = array('resellerID' => $this->resellerId, 'apiKey' => $this->apiKey, 'domainName' => $domain_name);
-
-            // make API call
-            $output = $client->checkDomain($data);
-            
-            return $output;
-
-        } catch (SoapFault $fault) {
-            
-            $this->lastError = $fault;
-            
-            return false;
-            
-        }
+        return $this->callApi('checkDomain',array('domainName' => $domain_name));
     }
 }
