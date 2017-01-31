@@ -2,8 +2,6 @@
 
 namespace Itomic\Synergy;
 
-use SoapClient;
-use SoapFault;
 use Itomic\Synergy\SynergyWholesale;
 
 class Synergy
@@ -30,7 +28,7 @@ class Synergy
      */
     public function domainInfo($domain_name)
     {
-        return $this->synergyWholesale->callApi('domainInfo', array('domainName' => $domain_name));
+        return $this->synergyWholesale->domainInfo(array('domainName' => $domain_name));
     }
     
     /**
@@ -42,7 +40,7 @@ class Synergy
      */
     public function balanceQuery()
     {
-        return $this->synergyWholesale->callApi('balanceQuery');
+        return $this->synergyWholesale->balanceQuery();
     }
     
     /**
@@ -57,7 +55,7 @@ class Synergy
      */
     public function updateDomainPassword($domain_name,$new_password)
     {
-        return $this->synergyWholesale->callApi('updateDomainPassword',array('domainName' => $domain_name, 'newPassword' => $new_password));
+        return $this->synergyWholesale->updateDomainPassword(array('domainName' => $domain_name, 'newPassword' => $new_password));
     }
     
     /**

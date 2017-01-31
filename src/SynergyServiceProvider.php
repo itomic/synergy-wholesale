@@ -35,7 +35,11 @@ class SynergyServiceProvider extends ServiceProvider
     {
         //
         $this->app->singleton(Synergy::class, function () {
-            return new Synergy(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey'));
+            
+            $synergyWholesale = new SynergyWholesale(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey'));
+            
+            return new Synergy($synergyWholesale);
+            
         });
         
         $this->app->alias(Synergy::class, 'synergy');

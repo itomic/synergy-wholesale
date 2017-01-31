@@ -39,7 +39,7 @@ class SynergyWholesale
     }
     
     /**
-     * Synergy-Wholesale API Proxy
+     * Synergy-Wholesale interpreter hook
      * 
      * Wrapper for Synergy-Wholesale API calls
      * 
@@ -48,8 +48,8 @@ class SynergyWholesale
      * 
      * @return mixed
      */
-    private function callApi($command,$data = array())
-    {   
+    public function __call($command,$data = array())
+    {
         try {
             // New soap connection
             $client = new SoapClient(null, array('location' => $this->location, 'uri' => ""));
