@@ -12,7 +12,7 @@ class SynergyWholesale
     private $location = self::API_LOCATION.'?wsdl';    
     private $resellerId;
     private $apiKey;
-    private $lastError;
+    private $apiLastError = false;
     
     
     /**
@@ -33,9 +33,9 @@ class SynergyWholesale
      * 
      * return object
      */
-    public function getLastError()
+    public function getApiLastError()
     {
-        return $this->lastError;
+        return $this->apiLastError;
     }
     
     /**
@@ -48,11 +48,11 @@ class SynergyWholesale
      * 
      * @return mixed
      */
-    public function __call($command,$data = array())
+    public function __call($command,$data)
     {
         try {
             // New soap connection
-            $client = new SoapClient(null, array('location' => $this->location, 'uri' => ""));
+            $client = new SoapClient(null, array('trace' => false, 'exception' => false,'location' => $this->location, 'uri' => ""));
             
             // make API call
             $output = $client->$command(array_merge(array('resellerID' => $this->resellerId, 'apiKey' => $this->apiKey), $data));
@@ -61,10 +61,9 @@ class SynergyWholesale
 
         } catch (SoapFault $fault) {
             
-            $this->lastError = $fault;
+            $this->apiLastError = new SoapFault($fault->faultcode,$fault->faultstring);
             
             return false;
         }
     }
-    
 }

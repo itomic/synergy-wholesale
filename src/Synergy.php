@@ -7,6 +7,7 @@ use Itomic\Synergy\SynergyWholesale;
 class Synergy
 {
     private $synergyWholesale;
+    private $lastError;
     
     /**
      * Create a new instance
@@ -15,6 +16,29 @@ class Synergy
      */
     public function __construct(SynergyWholesale $synergyWholesale) {
         $this->synergyWholesale = $synergyWholesale;
+    }
+    
+    /**
+     * Synergy-Wholesale API Proxy
+     * 
+     * Wrapper for Synergy-Wholesale API calls
+     * 
+     * @param string $command API Command
+     * @param array  $data    payload
+     * 
+     * @return mixed
+     */
+    private function callApi($command,$data = array())
+    {   
+        $result = $this->synergyWholesale->$command($data);
+        
+        if($result) {
+            return $result;
+        }
+        else {
+            $this->lastError = $this->synergyWholesale->getApiLastError();
+            return false;
+        }
     }
     
     /**
@@ -28,7 +52,7 @@ class Synergy
      */
     public function domainInfo($domain_name)
     {
-        return $this->synergyWholesale->domainInfo(array('domainName' => $domain_name));
+        return $this->callApi('domainInfo',array('domainName' => $domain_name));
     }
     
     /**
@@ -40,7 +64,7 @@ class Synergy
      */
     public function balanceQuery()
     {
-        return $this->synergyWholesale->balanceQuery();
+        return $this->callApi('balanceQuery');
     }
     
     /**
@@ -55,7 +79,7 @@ class Synergy
      */
     public function updateDomainPassword($domain_name,$new_password)
     {
-        return $this->synergyWholesale->updateDomainPassword(array('domainName' => $domain_name, 'newPassword' => $new_password));
+        return $this->callApi('updateDomainPassword',array('domainName' => $domain_name, 'newPassword' => $new_password));
     }
     
     /**
@@ -64,5 +88,17 @@ class Synergy
     public function getApi()
     {
         return $this->synergyWholesale;
+    }
+    
+    /**
+     * Last API Call Error
+     * 
+     * wrapper for SynergyWholesale->getError()
+     * 
+     * return object
+     */
+    public function getLastError()
+    {
+        return $this->lastError;
     }
 }
