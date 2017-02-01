@@ -8,29 +8,6 @@ use Itomic\Synergy\SynergyWholesale;
 
 class SynergyTest extends TestCase
 {
-    /** @var Mockery\Mock */
-    protected $synergyWholesaleApi;
-    
-    /** @var Itomic\Synergy\Synergy */
-    protected $synergy;
-    
-    public function setUp()
-    {
-        parent::setUp();
-        
-        $resellerId = config('synergy-wholesale.resellerID');
-        $apiKey = config('synergy-wholesale.apiKey');
-        
-        $this->synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
-                ->setConstructorArgs(array($resellerId,$apiKey))
-                ->setMethods(['balanceQuery','domainInfo'])
-                ->getMock();
-        
-        $this->synergyWholesaleApi->shouldReceive('getApiLastError');
-        
-        $this->synergy = new Synergy($this->synergyWholesaleApi);
-    }
-    
     public function tearDown() {
         
         Mockery::close();
@@ -44,25 +21,15 @@ class SynergyTest extends TestCase
      */
     public function testBalanceQueryReturnsFalse()
     {
-        /*
         $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
-                ->setConstructorArgs(array($resellerId,null))
+                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
                 ->setMethods(['balanceQuery'])
                 ->getMock();
+        $synergy = new Synergy($synergyWholesaleApi);
         
-        $balance = $this->synergy->balanceQuery();
-        dd($balance);
-        //$stub = $this->createMock(SynergyWholesale::class);
+        $synergyWholesaleApi->expects($this->once())->method('balanceQuery');
         
-        //$stub->method('doSomething')
-        //        ->willReturn('foo');
-        /*
-        $this->synergyWholesaleApi
-                ->expects($this->once())
-                ->method('__call')
-                ->willReturn('123');
-        */
-        
+        $synergy->balanceQuery();
     }
     
     /**
@@ -70,14 +37,50 @@ class SynergyTest extends TestCase
      */
     public function testBalanceQueryReturnsBalance()
     {
-        //$stub = $this->createMock(SynergyWholesale::class);
+        $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
+                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
+                ->setMethods(['balanceQuery'])
+                ->getMock();
         
-        //$stub->method('doSomething')
-        //        ->willReturn('foo');
+        $synergy = new Synergy($synergyWholesaleApi);
         
-        // Create a mock for the Observer class,
-        // only mock the update() method.
+        $synergyWholesaleApi->expects($this->once())->method('balanceQuery');
         
+        $synergy->balanceQuery();
+    }
+    
+    /**
+     * @test
+     */
+    public function testDomainInfoReturnsFalse()
+    {
+        $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
+                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
+                ->setMethods(['domainInfo'])
+                ->getMock();
+        
+        $synergy = new Synergy($synergyWholesaleApi);
+        
+        $synergyWholesaleApi->expects($this->once())->method('domainInfo');
+        
+        $synergy->domainInfo('testdomain');
+    }
+    
+    /**
+     * @test
+     */
+    public function testDomainInfoReturnsSuccess()
+    {
+        $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
+                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
+                ->setMethods(['domainInfo'])
+                ->getMock();
+        
+        $synergy = new Synergy($synergyWholesaleApi);
+        
+        $synergyWholesaleApi->expects($this->once())->method('domainInfo');
+        
+        $synergy->domainInfo('testdomain');
     }
     
 }
