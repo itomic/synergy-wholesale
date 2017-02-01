@@ -23,13 +23,26 @@ class SynergyTest extends TestCase
     {
         $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
                 ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
-                ->setMethods(['balanceQuery'])
+                ->setMethods(['balanceQuery','getApiLastError'])
                 ->getMock();
+        
         $synergy = new Synergy($synergyWholesaleApi);
         
-        $synergyWholesaleApi->expects($this->once())->method('balanceQuery');
+        $synergyWholesaleApi
+                ->expects($this->once())
+                ->method('balanceQuery')
+                ->willReturn(false);
         
-        $synergy->balanceQuery();
+        $synergyWholesaleApi
+                ->expects($this->any())
+                ->method('getApiLastError')
+                ->willReturn((object) array('status'=>'ERR_LOGIN_FAILED','errorMessage'=>'Unable to login to wholesale system'));
+        
+        $balance = $synergy->balanceQuery();
+        if(!$balance) {
+            $error = $synergy->getLastError();
+            print_r($error);
+        }
     }
     
     /**
@@ -44,9 +57,15 @@ class SynergyTest extends TestCase
         
         $synergy = new Synergy($synergyWholesaleApi);
         
-        $synergyWholesaleApi->expects($this->once())->method('balanceQuery');
+        $synergyWholesaleApi
+                ->expects($this->once())
+                ->method('balanceQuery')
+                ->willReturn((object) array('status'=>'OK','balance'=>802.25));
         
-        $synergy->balanceQuery();
+        $balance = $synergy->balanceQuery();
+        if($balance) {
+            print_r($balance);
+        }
     }
     
     /**
@@ -56,14 +75,31 @@ class SynergyTest extends TestCase
     {
         $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
                 ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
-                ->setMethods(['domainInfo'])
+                ->setMethods(['domainInfo','getApiLastError'])
                 ->getMock();
         
         $synergy = new Synergy($synergyWholesaleApi);
         
-        $synergyWholesaleApi->expects($this->once())->method('domainInfo');
+        $synergyWholesaleApi
+                ->expects($this->once())
+                ->method('domainInfo')
+                ->willReturn(false);
         
-        $synergy->domainInfo('testdomain');
+        $synergyWholesaleApi
+                ->expects($this->any())
+                ->method('getApiLastError')
+                ->willReturn((object) array(
+                    'status' => 'ERR_DOMAININFO_FAILED',
+                    'errorMessage' => 'Domain Info Failed - Domain Does Not Exist',
+                    'domainName' => 'nonexistentdomain.com.au',
+                    'domain_status' => 'Domain does not exist'
+                ));
+        
+        $domainInfo = $synergy->domainInfo('nonexistentdomain.com.au');
+        if(!$domainInfo) {
+            $error = $synergy->getLastError();
+            print_r($error);
+        }
     }
     
     /**
@@ -78,9 +114,39 @@ class SynergyTest extends TestCase
         
         $synergy = new Synergy($synergyWholesaleApi);
         
-        $synergyWholesaleApi->expects($this->once())->method('domainInfo');
+        $synergyWholesaleApi
+                ->expects($this->once())
+                ->method('domainInfo')
+                ->willReturn((object) array(
+                    'domainName' => 'synergywholesale.com',
+                    'domain_status' => 'clientTransferProhibited',
+                    'domain_expiry' => '2022-01-17 16:31:47',
+                    'nameServers' => array (
+                        '0' => 'NS1.HOST-SERVICES.US',
+                        '1' => 'NS2.HOST-SERVICES.US'
+                    ),
+                    'dnsConfig' => 1,
+                    'dnsConfigName' => 'Custom',
+                    'bulkInProgress' => 0,
+                    'domainPassword' => '**********',
+                    'status' => 'OK',
+                    'idProtect' => 'Disabled',
+                    'autoRenew' => 'off',
+                    'icannVerificationDateEnd' => '2014-05-31 23:59:59',
+                    'icannStatus' => 'Pending Verification',
+                    'DSData' => array (
+                        'keyTag' => 9885,
+                        'Algoirthm' => 5,
+                        'Digest' => '476XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+                        'DigestType' => 1,
+                        'UUID' => '87xxx5xxx4',
+                    )
+                ));
         
-        $synergy->domainInfo('testdomain');
+        $domainInfo = $synergy->domainInfo('synergywholesale.com');
+        if($domainInfo) {
+            print_r($domainInfo);
+        }
     }
     
 }
