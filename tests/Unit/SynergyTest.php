@@ -8,6 +8,24 @@ use Itomic\Synergy\SynergyWholesale;
 
 class SynergyTest extends TestCase
 {
+    /** @var Mockery\Mock */
+    private $synergyWholesaleApi;
+    
+    /** @var Itomic\Synergy\Synergy */
+    private $synergy;
+    
+    public function setUp() {
+        parent::setUp();
+        
+        $this->synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
+                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
+                ->setMethods(['balanceQuery','domainInfo','getApiLastError'])
+                ->getMock();
+        
+        $this->synergy = new Synergy($this->synergyWholesaleApi);
+        
+    }
+    
     public function tearDown() {
         
         Mockery::close();
@@ -21,26 +39,19 @@ class SynergyTest extends TestCase
      */
     public function testBalanceQueryReturnsFalse()
     {
-        $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
-                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
-                ->setMethods(['balanceQuery','getApiLastError'])
-                ->getMock();
-        
-        $synergy = new Synergy($synergyWholesaleApi);
-        
-        $synergyWholesaleApi
+        $this->synergyWholesaleApi
                 ->expects($this->once())
                 ->method('balanceQuery')
                 ->willReturn(false);
         
-        $synergyWholesaleApi
+        $this->synergyWholesaleApi
                 ->expects($this->any())
                 ->method('getApiLastError')
                 ->willReturn((object) array('status'=>'ERR_LOGIN_FAILED','errorMessage'=>'Unable to login to wholesale system'));
         
-        $balance = $synergy->balanceQuery();
+        $balance = $this->synergy->balanceQuery();
         if(!$balance) {
-            $error = $synergy->getLastError();
+            $error = $this->synergy->getLastError();
             print_r($error);
         }
     }
@@ -50,19 +61,12 @@ class SynergyTest extends TestCase
      */
     public function testBalanceQueryReturnsBalance()
     {
-        $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
-                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
-                ->setMethods(['balanceQuery'])
-                ->getMock();
-        
-        $synergy = new Synergy($synergyWholesaleApi);
-        
-        $synergyWholesaleApi
+        $this->synergyWholesaleApi
                 ->expects($this->once())
                 ->method('balanceQuery')
                 ->willReturn((object) array('status'=>'OK','balance'=>802.25));
         
-        $balance = $synergy->balanceQuery();
+        $balance = $this->synergy->balanceQuery();
         if($balance) {
             print_r($balance);
         }
@@ -73,31 +77,26 @@ class SynergyTest extends TestCase
      */
     public function testDomainInfoReturnsFalse()
     {
-        $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
-                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
-                ->setMethods(['domainInfo','getApiLastError'])
-                ->getMock();
+        $domain = 'nonexistentdomain.com.au';
         
-        $synergy = new Synergy($synergyWholesaleApi);
-        
-        $synergyWholesaleApi
+        $this->synergyWholesaleApi
                 ->expects($this->once())
                 ->method('domainInfo')
                 ->willReturn(false);
         
-        $synergyWholesaleApi
+        $this->synergyWholesaleApi
                 ->expects($this->any())
                 ->method('getApiLastError')
                 ->willReturn((object) array(
                     'status' => 'ERR_DOMAININFO_FAILED',
                     'errorMessage' => 'Domain Info Failed - Domain Does Not Exist',
-                    'domainName' => 'nonexistentdomain.com.au',
+                    'domainName' => $domain,
                     'domain_status' => 'Domain does not exist'
                 ));
         
-        $domainInfo = $synergy->domainInfo('nonexistentdomain.com.au');
+        $domainInfo = $this->synergy->domainInfo($domain);
         if(!$domainInfo) {
-            $error = $synergy->getLastError();
+            $error = $this->synergy->getLastError();
             print_r($error);
         }
     }
@@ -107,18 +106,13 @@ class SynergyTest extends TestCase
      */
     public function testDomainInfoReturnsSuccess()
     {
-        $synergyWholesaleApi = $this->getMockBuilder(SynergyWholesale::class)
-                ->setConstructorArgs(array(config('synergy-wholesale.resellerID'),config('synergy-wholesale.apiKey')))
-                ->setMethods(['domainInfo'])
-                ->getMock();
+        $domain = 'synergywholesale.com';
         
-        $synergy = new Synergy($synergyWholesaleApi);
-        
-        $synergyWholesaleApi
+        $this->synergyWholesaleApi
                 ->expects($this->once())
                 ->method('domainInfo')
                 ->willReturn((object) array(
-                    'domainName' => 'synergywholesale.com',
+                    'domainName' => $domain,
                     'domain_status' => 'clientTransferProhibited',
                     'domain_expiry' => '2022-01-17 16:31:47',
                     'nameServers' => array (
@@ -143,7 +137,7 @@ class SynergyTest extends TestCase
                     )
                 ));
         
-        $domainInfo = $synergy->domainInfo('synergywholesale.com');
+        $domainInfo = $this->synergy->domainInfo($domain);
         if($domainInfo) {
             print_r($domainInfo);
         }
