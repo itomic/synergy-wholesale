@@ -52,7 +52,7 @@ class SynergyWholesale
     {
         try {
             // New soap connection
-            $client = new SoapClient(null, array('trace' => false, 'exception' => false,'location' => $this->location, 'uri' => ""));
+            $client = new SoapClient(null, array('location' => $this->location, 'uri' => ""));
             
             // make API call
             $output = $client->$command(array_merge(array('resellerID' => $this->resellerId, 'apiKey' => $this->apiKey), $data));
