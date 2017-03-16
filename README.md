@@ -1,1 +1,1 @@
-#Synergy Wholesale Laravel Package
+   #   Synergy Wholesale Laravel Package
