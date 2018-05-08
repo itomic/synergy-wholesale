@@ -8,5 +8,20 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Itomic\\Synergy\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Itomic\\Synergy\\SynergyServiceProvider"
+            ],
+            "aliases": {
+                "Synergy": "Itomic\\Synergy\\SynergyFacade"
+            }
+        }
+    }
 }
