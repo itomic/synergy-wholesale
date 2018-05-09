@@ -83,6 +83,25 @@ class Synergy
     }
     
     /**
+     * List Domains
+     * 
+     * return list domains
+     * 
+     * @param string $status
+     * 
+     * @return array
+     */
+    public function listDomains($status=NULL)
+    {
+        if (is_null($status)) {
+            $api = $this->callApi('listDomains');
+        } else {
+            $api = $this->callApi('listDomains',array('status' => $status));
+        }
+        return $api;
+    }
+    
+    /**
      * @return \Itomic\Synergy\Synergy
      */
     public function getApi()
